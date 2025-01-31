@@ -2,7 +2,10 @@ const express = require('express');
 const router = express.Router();
 const jobController = require('../controllers/jobController');
 
-// Route pour récupérer les offres d'emploi
+// Route to fetch offers
 router.get('/jobs', jobController.getJobs);
+
+// Route to send offers to webflow
+router.post('/webflow/send-jobs', jobController.sendJobsToWebflow);
 
 module.exports = router;
