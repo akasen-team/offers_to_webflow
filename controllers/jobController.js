@@ -7,13 +7,46 @@
  * Version : 1.0
  */
 
-const jobOffer = require('../models/jobOffer');
-const mongoose = require('mongoose');
+const jobs = require('../models/jobOffer');
 const apiService = require('../services/apiService');
 
 
+// exports.getJobs = async (req, res) => {
+//     console.log("🔵 Exécution de getJobs()...");
 
+//     try {
+//         const jobs = await apiService.fetchData();
+//         console.log("🟢 Données récupérées :", jobs);
 
+//         if (res && res.json) {
+//             res.json(jobs); // Réponse HTTP si appelée depuis une route API
+//         } else {
+//             console.log("📂 Mode démarrage : Pas de réponse HTTP, données stockées ou traitées ici.");
+//         }
 
+//         return jobs; // Retourner les données pour un éventuel traitement
+//     } catch (error) {
+//         console.error("❌ Erreur dans getJobs():", error.message);
+//         if (res && res.status) {
+//             res.status(500).json({ error: "Erreur lors de la récupération des offres d'emploi" });
+//         }
+//     }
+// };
 
-module.exports = { saveProjects };
+exports.getJobs = async (req, res) => {
+    console.log("🔵 Exécution de getJobs()...");
+
+    try {
+        const jobs = await apiService.fetchData();
+        console.log("🟢 Données enregistrées en base.");
+        
+        if (res && res.json) {
+            res.json(jobs);
+        }
+    } catch (error) {
+        console.error("❌ Erreur dans getJobs():", error.message);
+        if (res && res.status) {
+            res.status(500).json({ error: "Erreur lors de la récupération des offres d'emploi" });
+        }
+    }
+};
