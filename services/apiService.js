@@ -6,8 +6,7 @@
  * Version : 1.0
  */
 
-
-const Job = require('../models/jobOffer'); // ✅ Utilisation du bon nom
+const Job = require('../models/jobOffer'); 
 const axios = require('axios');
 
 const url = "https://www.jobposting.pro/flux/clients/json/modele.json";
@@ -17,17 +16,17 @@ exports.fetchData = async function () {
 
     try {
         const response = await axios.get(url);
-        const jobDataArray = response.data; // ✅ Renommer la variable pour éviter le conflit
+        const jobDataArray = response.data;
 
         console.log(`✅ ${jobDataArray.length} offres récupérées.`);
 
         for (const jobData of jobDataArray) {
             try {
-                // Vérifier si l'offre existe déjà
+                // Check if job offer already exists
                 const existingJob = await Job.findOne({ offre_id: jobData.offre_id });
 
                 if (!existingJob) {
-                    // Enregistrer la nouvelle offre
+                    // Store new job offer
                     await Job.create(jobData);
                     console.log(`🆕 Nouvelle offre ajoutée : ${jobData.titre}`);
                 } else {
@@ -39,7 +38,7 @@ exports.fetchData = async function () {
         }
 
         console.log("✅ Enregistrement terminé.");
-        return jobDataArray; // ✅ Retourner les données correctement
+        return jobDataArray;
     } catch (error) {
         console.error("❌ Erreur dans fetchData():", error.message);
         throw error;
