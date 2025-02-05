@@ -4,10 +4,9 @@
  * Feature : all method to manage data incomming from external API
  * how : Basic CRUD opérations, adding an auto save into mongodb when the app get JSON data from offers API
  * details :
- * Version : 1.0.1 => remove unnecessary documentation
+ * Version : 1.0.1 => remove unnecessary documentation and unused code
  */
 
-const jobs = require('../models/jobOffer');
 const apiService = require('../services/apiService');
 
 exports.getJobs = async (req, res) => {
