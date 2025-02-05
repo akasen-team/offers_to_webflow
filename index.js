@@ -2,7 +2,7 @@
  * Name : index.js
  * Dev : Maxance
  * Feature : control everything in the backend logic
- * Version : 1.0
+ * Version : 1.0.0
  */
 
 require('dotenv').config();
@@ -42,7 +42,8 @@ app.listen(PORT, () => {
 async function executeInitialJobs() {
     console.log("⚡ Exécution des tâches de démarrage...");
     try {
-        await jobController.getJobs({ query: {} }, { json: console.log }); // Simuler une réponse JSON en console
+        //Simulate JSON res
+        await jobController.getJobs({ query: {} }, { json: console.log });
         console.log("✅ Tâches de démarrage exécutées avec succès !");
     } catch (error) {
         console.error("❌ Erreur lors de l'exécution des tâches de démarrage:", error.message);
