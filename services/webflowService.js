@@ -40,16 +40,88 @@ async function getWebflowCollectionId() {
 
 
 
-// ✅ Fonction pour publier automatiquement les offres après ajout
-async function publishWebflowCollection() {
-    console.log("🚀 Publication des offres Webflow...");
+// // ✅ Fonction pour publier automatiquement les offres après ajout
+// async function publishWebflowCollection() {
+//     console.log("🚀 Publication des offres Webflow...");
+
+//     try {
+//         const response = await axios.post(
+//             `https://api.webflow.com/v2/sites/${process.env.WEBFLOW_SITE_ID}/publish`,
+//             {
+//                 collections: [process.env.WEBFLOW_COLLECTION_ID], // ✅ Utilisation de l'ID de la collection
+//                 domains: [process.env.WEBFLOW_DOMAIN_ID] // ✅ Utilisation du domaine Webflow.io
+//             },
+//             {
+//                 headers: {
+//                     'Authorization': `Bearer ${process.env.WEBFLOW_API_TOKEN}`,
+//                     'accept-version': '2.0',
+//                     'Content-Type': 'application/json'
+//                 }
+//             }
+//         );
+
+//         console.log("✅ Offres publiées avec succès :", response.data);
+//     } catch (error) {
+//         console.error("❌ Erreur lors de la publication des offres Webflow :", error.response?.data || error.message);
+//     }
+// }
+
+
+// ✅ Fonction pour récupérer dynamiquement un domaine valide depuis Webflow
+async function getWebflowValidDomain() {
+    console.log(`🔎 Récupération des domaines Webflow pour le site ID: ${process.env.WEBFLOW_SITE_ID}`);
 
     try {
+        const response = await axios.get(
+            `https://api.webflow.com/v2/sites/${process.env.WEBFLOW_SITE_ID}`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${process.env.WEBFLOW_API_TOKEN}`,
+                    'accept-version': '2.0'
+                }
+            }
+        );
+
+        console.log("✅ Réponse Webflow Site Info :", response.data);
+
+        // ✅ Vérifier si Webflow retourne des domaines valides
+        if (!response.data.customDomains || response.data.customDomains.length === 0) {
+            console.log("⚠️ Aucun domaine personnalisé trouvé, utilisation du staging Webflow.io...");
+            return `${process.env.WEBFLOW_SITE_SLUG}.webflow.io`;
+        }
+
+        // ✅ Utiliser le premier domaine valide
+        const validDomain = response.data.customDomains[0].name;
+        console.log(`✅ Domaine Webflow autorisé trouvé : ${validDomain}`);
+        return validDomain;
+
+    } catch (error) {
+        console.error("❌ Erreur lors de la récupération du domaine Webflow :", error.response?.data || error.message);
+        throw error;
+    }
+}
+
+// ✅ Fonction pour publier correctement les offres Webflow
+async function publishWebflowCollection() {
+    console.log("🚀 Tentative de publication des offres Webflow...");
+
+    try {
+        // 🔎 Récupération d'un domaine valide
+        let domainId = process.env.WEBFLOW_DOMAIN_ID;
+        if (!domainId) {
+            console.log("🔍 Domaine Webflow non défini dans .env, récupération en cours...");
+            domainId = await getWebflowValidDomain();
+            process.env.WEBFLOW_DOMAIN_ID = domainId; // ✅ Stocker pour éviter de le récupérer à chaque appel
+        }
+
+        console.log(`✅ Domaine Webflow utilisé pour la publication : ${domainId}`);
+
+        // ✅ Envoi de la requête de publication
         const response = await axios.post(
             `https://api.webflow.com/v2/sites/${process.env.WEBFLOW_SITE_ID}/publish`,
             {
-                collections: [process.env.WEBFLOW_COLLECTION_ID], // ✅ Utilisation de l'ID de la collection
-                domains: [process.env.WEBFLOW_DOMAIN_ID] // ✅ Utilisation du domaine Webflow.io
+                collections: [process.env.WEBFLOW_COLLECTION_ID], // ✅ Collection ID récupérée
+                domains: [domainId] // ✅ Domaine valide récupéré
             },
             {
                 headers: {
@@ -65,7 +137,6 @@ async function publishWebflowCollection() {
         console.error("❌ Erreur lors de la publication des offres Webflow :", error.response?.data || error.message);
     }
 }
-
 
 
 
@@ -91,7 +162,7 @@ async function getExistingWebflowJobs() {
         }
 
         // ✅ Extraction des `reference-id` (ou `name` si besoin)
-        const existingJobs = new Set(response.data.items.map(item => item["reference-id"]));
+        const existingJobs = new Set(response.data.items.map(item => item["fieldData"]["reference-id"]));
 
         console.log(`✅ ${existingJobs.size} offres déjà présentes dans Webflow.`);
         return existingJobs;
@@ -184,7 +255,7 @@ exports.sendJobsToWebflow = async function () {
         console.log("🎯 Toutes les offres ont été traitées (sans doublon).");
 
         // 🚀 Publier la collection après ajout des offres
-        await publishWebflowCollection();
+        //await publishWebflowCollection(); //desactivation temporaire
 
     } catch (error) {
         console.error("❌ Erreur lors de l'envoi des offres à Webflow :", error.message);
