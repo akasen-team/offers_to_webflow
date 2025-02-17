@@ -13,6 +13,7 @@ const mongoose = require('mongoose');
 const jobsRoutes = require('./routes/jobsRoutes');
 const jobController = require('./controllers/jobController');
 const webflowService = require('./services/webflowService');
+const cron = require('node-cron');
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -51,6 +52,21 @@ async function executeInitialJobs() {
 };
 
 executeInitialJobs();
+
+
+// scheduling the cron task to run it every 0600L
+cron.schedule('0 */6 * * *', async () => {
+    console.log("⏳ [CRON] Mise à jour automatique des offres d'emploi...");
+    try {
+        await executeInitialJobs();
+        console.log("✅ [CRON] Mise à jour terminée !");
+    } catch (error) {
+        console.error("❌ [CRON] Erreur lors de la mise à jour :", error.message);
+    }
+});
+
+// ✅ Confirmation de la planification du CRON
+console.log("✅ [CRON] Planification activée : mise à jour des offres toutes les 6 heures");
 
 // Start server
 const PORT = process.env.PORT || 5000;

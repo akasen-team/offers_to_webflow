@@ -223,6 +223,7 @@ exports.sendJobsToWebflow = async function () {
                                 "sector": job.metier || "",
                                 "contracttype": job.contrat_lib || "",
                                 "salary": `${job.sal_min || ''} - ${job.sal_max || ''}`,
+                                "avantages": job.avantages || "",
                                 "timeperweek": job.temps_travail || "",
                                 "schedules": job.remote_type || "",
                                 "project-id": job.apply_url
@@ -230,6 +231,7 @@ exports.sendJobsToWebflow = async function () {
                         }
                     ]
                 };
+                console.log(`📤 Vérification avantage [Webflow]: ${job.titre} -> ${job.avantages}`);
 
                 console.log(`📤 Envoi de l'offre '${job.titre}' vers Webflow...`);
 
