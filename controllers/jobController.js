@@ -8,6 +8,7 @@
  */
 
 const apiService = require('../services/apiService');
+const webflowService = require('../services/webflowService');
 
 exports.getJobs = async (req, res) => {
     console.log("🔵 Exécution de getJobs()...");
@@ -24,5 +25,19 @@ exports.getJobs = async (req, res) => {
         if (res && res.status) {
             res.status(500).json({ error: "Erreur lors de la récupération des offres d'emploi" });
         }
+    }
+};
+
+
+// Fonction pour envoyer les offres à Webflow
+exports.sendJobsToWebflow = async (req, res) => {
+    console.log("🔵 Envoi des offres d'emploi vers Webflow déclenché...");
+
+    try {
+        await webflowService.sendJobsToWebflow();
+        res.json({ message: "Offres envoyées à Webflow avec succès" });
+    } catch (error) {
+        console.error("❌ Erreur lors de l'envoi des offres à Webflow :", error.message);
+        res.status(500).json({ error: "Erreur lors de l'envoi des offres à Webflow" });
     }
 };

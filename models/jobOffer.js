@@ -21,6 +21,7 @@ const jobSchema = new mongoose.Schema({
     desc_salaire: { type: String },
     sal_min: { type: Number },
     sal_max: { type: Number },
+    avantages: { type: String },
     salvisible: { type: String },
     remote_type: { type: String },
     remote_id: { type: String },

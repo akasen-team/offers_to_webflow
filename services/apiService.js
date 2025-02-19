@@ -9,7 +9,8 @@
 const Job = require('../models/jobOffer'); 
 const axios = require('axios');
 
-const url = "https://www.jobposting.pro/flux/clients/json/modele.json";
+// const url = "https://www.jobposting.pro/flux/clients/json/modele.json";
+const url = "https://www.jobposting.pro/flux/clients/json/ikiway.json";
 
 exports.fetchData = async function () {
     console.log("🟢 fetchData() a été appelée");
