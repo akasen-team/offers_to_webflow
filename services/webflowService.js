@@ -7,7 +7,7 @@ const WEBFLOW_API_TOKEN = process.env.WEBFLOW_API_TOKEN;
 const SITE_ID = process.env.WEBFLOW_SITE_ID; 
 const COLLECTION_ID = process.env.COLLECTION_ID;
 
-// ✅ Fonction pour récupérer l'ID de la collection Webflow
+// ✅ Get webflow's collection ID
 async function getWebflowCollectionId() {
     try {
         console.log(`🔎 Récupération des collections Webflow pour le site ID: ${SITE_ID}`);
@@ -20,56 +20,28 @@ async function getWebflowCollectionId() {
             }
         });
 
-        console.log("✅ Collections Webflow récupérées :", response.data);
+        console.log("✅ Collections Webflow found :", response.data);
 
-        // 🔍 Recherche la collection "Jobs"
+        // 🔍 Seeking collection "Jobs"
         const collection = response.data.collections.find(col => col.displayName === "Jobs");
 
         if (!collection) {
-            throw new Error("❌ Collection Webflow 'Jobs' introuvable !");
+            throw new Error("❌ Collection Webflow 'Jobs' not found");
         }
 
-        console.log(`✅ Collection Webflow trouvée : ID ${collection.id}`);
+        console.log(`✅ Collection Webflow found : ID ${collection.id}`);
         return collection.id;
     } catch (error) {
-        console.error("❌ Erreur lors de la récupération de l'ID de la collection Webflow :", error.response?.data || error.message);
+        console.error("❌ Error while getting webflow collection's ID:", error.response?.data || error.message);
         throw error;
     }
 }
 
 
 
-
-// // ✅ Fonction pour publier automatiquement les offres après ajout
-// async function publishWebflowCollection() {
-//     console.log("🚀 Publication des offres Webflow...");
-
-//     try {
-//         const response = await axios.post(
-//             `https://api.webflow.com/v2/sites/${process.env.WEBFLOW_SITE_ID}/publish`,
-//             {
-//                 collections: [process.env.WEBFLOW_COLLECTION_ID], // ✅ Utilisation de l'ID de la collection
-//                 domains: [process.env.WEBFLOW_DOMAIN_ID] // ✅ Utilisation du domaine Webflow.io
-//             },
-//             {
-//                 headers: {
-//                     'Authorization': `Bearer ${process.env.WEBFLOW_API_TOKEN}`,
-//                     'accept-version': '2.0',
-//                     'Content-Type': 'application/json'
-//                 }
-//             }
-//         );
-
-//         console.log("✅ Offres publiées avec succès :", response.data);
-//     } catch (error) {
-//         console.error("❌ Erreur lors de la publication des offres Webflow :", error.response?.data || error.message);
-//     }
-// }
-
-
-// ✅ Fonction pour récupérer dynamiquement un domaine valide depuis Webflow
+// ✅ Get a valid domain from webflow
 async function getWebflowValidDomain() {
-    console.log(`🔎 Récupération des domaines Webflow pour le site ID: ${process.env.WEBFLOW_SITE_ID}`);
+    console.log(`🔎 Getting webflow domains for de the website ID: ${process.env.WEBFLOW_SITE_ID}`);
 
     try {
         const response = await axios.get(
@@ -82,7 +54,7 @@ async function getWebflowValidDomain() {
             }
         );
 
-        console.log("✅ Réponse Webflow Site Info :", response.data);
+        console.log("✅ Response Webflow Site Info :", response.data);
 
         // ✅ Vérifier si Webflow retourne des domaines valides
         if (!response.data.customDomains || response.data.customDomains.length === 0) {
