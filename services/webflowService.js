@@ -1,6 +1,6 @@
 const axios = require('axios');
 require('dotenv').config();
-const Job = require('../models/jobOffer'); // Import du modèle MongoDB
+const Job = require('../models/jobOffer');
 
 const WEBFLOW_API_URL = 'https://api.webflow.com/v2/collections';
 const WEBFLOW_API_TOKEN = process.env.WEBFLOW_API_TOKEN;
@@ -36,8 +36,6 @@ async function getWebflowCollectionId() {
         throw error;
     }
 }
-
-
 
 // Get a valid domain from webflow
 async function getWebflowValidDomain() {
@@ -110,8 +108,6 @@ async function publishWebflowCollection() {
     }
 }
 
-
-
 // Fonction pour récupérer toutes les offres existantes dans Webflow
 async function getExistingWebflowJobs() {
     console.log("Vérification des offres déjà présentes dans Webflow...");
@@ -144,9 +140,6 @@ async function getExistingWebflowJobs() {
         return new Set(); //Retourne un Set vide en cas d'erreur pour éviter les bugs
     }
 }
-
-
-
 
 // Fonction pour envoyer toutes les offres existantes dans Webflow
 exports.sendJobsToWebflow = async function () {
