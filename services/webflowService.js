@@ -185,7 +185,7 @@ exports.sendJobsToWebflow = async function () {
                                 "reference-id": job.offre_id,
                                 "titre-du-poste": job.titre,
                                 "name": job.titre,
-                                "slug": job.titre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').slice(0, 50),
+                                "slug": job.offre_id,
                                 "responsable": job.societe,
                                 "email-du-reponsable": job.apply_mail,
                                 "description-du-poste": job.desc_poste || "",
