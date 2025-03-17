@@ -223,7 +223,7 @@ exports.sendJobsToWebflow = async function () {
         console.log("Toutes les offres ont été traitées (sans doublon).");
 
         // Publier la collection après ajout des offres
-        //await publishWebflowCollection(); //desactivation temporaire
+        await publishWebflowCollection();
 
     } catch (error) {
         console.error(" Erreur lors de l'envoi des offres à Webflow :", error.message);
