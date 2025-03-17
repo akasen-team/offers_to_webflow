@@ -188,6 +188,8 @@ exports.sendJobsToWebflow = async function () {
                                 "sector": job.metier || "",
                                 "contracttype": job.contrat_lib || "",
                                 "salary": `${job.sal_min || ''} - ${job.sal_max || ''}`,
+                                //TODO : changer desc_salaire en desc_avantage
+                                "avantages": job.desc_salaire || "",
                                 "avantages": job.avantages || "",
                                 "timeperweek": job.temps_travail || "",
                                 "schedules": job.remote_type || "",
