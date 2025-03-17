@@ -13,13 +13,13 @@ const axios = require('axios');
 const url = "https://www.jobposting.pro/flux/clients/json/ikiway.json";
 
 exports.fetchData = async function () {
-    console.log("🟢 fetchData() a été appelée");
+    console.log("fetchData() a été appelée");
 
     try {
         const response = await axios.get(url);
         const jobDataArray = response.data;
 
-        console.log(`✅ ${jobDataArray.length} offres récupérées.`);
+        console.log(`${jobDataArray.length} offres récupérées.`);
 
         for (const jobData of jobDataArray) {
             try {
@@ -34,14 +34,14 @@ exports.fetchData = async function () {
                     console.log(`🔄 Offre déjà existante : ${jobData.titre}`);
                 }
             } catch (err) {
-                console.error(`❌ Erreur lors de l'enregistrement de ${jobData.titre} :`, err.message);
+                console.error(`Erreur lors de l'enregistrement de ${jobData.titre} :`, err.message);
             }
         }
 
-        console.log("✅ Enregistrement terminé.");
+        console.log("Enregistrement terminé.");
         return jobDataArray;
     } catch (error) {
-        console.error("❌ Erreur dans fetchData():", error.message);
+        console.error("Erreur dans fetchData():", error.message);
         throw error;
     }
 };
