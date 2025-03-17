@@ -15,13 +15,13 @@ exports.getJobs = async (req, res) => {
 
     try {
         const jobs = await apiService.fetchData();
-        console.log("🟢 Données enregistrées en base.");
+        console.log("Données enregistrées en base.");
         
         if (res && res.json) {
             res.json(jobs);
         }
     } catch (error) {
-        console.error("❌ Erreur dans getJobs():", error.message);
+        console.error("Erreur dans getJobs():", error.message);
         if (res && res.status) {
             res.status(500).json({ error: "Erreur lors de la récupération des offres d'emploi" });
         }
@@ -31,13 +31,13 @@ exports.getJobs = async (req, res) => {
 
 // Fonction pour envoyer les offres à Webflow
 exports.sendJobsToWebflow = async (req, res) => {
-    console.log("🔵 Envoi des offres d'emploi vers Webflow déclenché...");
+    console.log("Envoi des offres d'emploi vers Webflow déclenché...");
 
     try {
         await webflowService.sendJobsToWebflow();
         res.json({ message: "Offres envoyées à Webflow avec succès" });
     } catch (error) {
-        console.error("❌ Erreur lors de l'envoi des offres à Webflow :", error.message);
+        console.error("Erreur lors de l'envoi des offres à Webflow :", error.message);
         res.status(500).json({ error: "Erreur lors de l'envoi des offres à Webflow" });
     }
 };
