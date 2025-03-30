@@ -167,7 +167,7 @@ exports.sendJobsToWebflow = async function () {
             // Vérifier si l'offre existe déjà sur Webflow
             if (existingWebflowJobs.has(job.offre_id)) {
                 console.log(`Offre déjà existante, pas d'ajout : ${job.titre}`);
-                continue; // On passe cette offre
+                continue;
             }
 
             try {
