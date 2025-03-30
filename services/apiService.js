@@ -9,7 +9,6 @@
 const Job = require('../models/jobOffer'); 
 const axios = require('axios');
 
-// const url = "https://www.jobposting.pro/flux/clients/json/modele.json";
 const url = "https://www.jobposting.pro/flux/clients/json/ikiway.json";
 
 exports.fetchData = async function () {
@@ -29,9 +28,9 @@ exports.fetchData = async function () {
                 if (!existingJob) {
                     // Store new job offer
                     await Job.create(jobData);
-                    console.log(`🆕 Nouvelle offre ajoutée : ${jobData.titre}`);
+                    console.log(`Nouvelle offre ajoutée : ${jobData.titre}`);
                 } else {
-                    console.log(`🔄 Offre déjà existante : ${jobData.titre}`);
+                    console.log(`Offre déjà existante : ${jobData.titre}`);
                 }
             } catch (err) {
                 console.error(`Erreur lors de l'enregistrement de ${jobData.titre} :`, err.message);
