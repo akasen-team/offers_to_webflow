@@ -13,6 +13,7 @@ const mongoose = require('mongoose');
 const jobsRoutes = require('./routes/jobsRoutes');
 const jobController = require('./controllers/jobController');
 const webflowService = require('./services/webflowService');
+const { executeInitialJobs } = require('./services/initialJobsService');
 const cron = require('node-cron');
 const app = express();
 app.use(cors());
@@ -26,33 +27,14 @@ mongoose.connect(MONGODB_URI, {
 .then(() => console.log('Connexion à MongoDB réussie'))
 .catch(err => console.error('Erreur de connexion à MongoDB:', err.message));
 
-
 //json
 app.use(express.json());
 
 //routes
 app.use('/api', jobsRoutes);
 
-
-// Fetch job Offers at the server startup
-async function executeInitialJobs() {
-    console.log("⚡ Exécution des tâches de démarrage...");
-    try {
-        // Récupérer les offres d'emploi depuis l'API et les enregistrer en base
-        await jobController.getJobs({ query: {} }, { json: console.log });
-        console.log("Offres d'emploi récupérées et enregistrées !");
-
-        // Envoyer les offres récupérées à Webflow
-        console.log("⚡ Envoi des offres d'emploi vers Webflow...");
-        await webflowService.sendJobsToWebflow();
-        console.log("Offres envoyées à Webflow avec succès !");
-    } catch (error) {
-        console.error("Erreur lors de l'exécution des tâches de démarrage:", error.message);
-    }
-};
-
+// Init middleware
 executeInitialJobs();
-
 
 // scheduling the cron task to run it every 0600L
 cron.schedule('0 */6 * * *', async () => {
@@ -69,7 +51,7 @@ cron.schedule('0 */6 * * *', async () => {
 console.log("[CRON] Planification activée : mise à jour des offres toutes les 6 heures");
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`server is running on port ${PORT}`);
