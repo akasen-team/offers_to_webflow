@@ -10,10 +10,10 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const jobsRoutes = require('./routes/jobsRoutes');
+//const jobsRoutes = require('./routes/jobsRoutes');
 const jobController = require('./controllers/jobController');
 const webflowService = require('./services/webflowService');
-const { executeInitialJobs } = require('./services/initialJobsService');
+const jobsWork = require('./services/initJobsService');
 const cron = require('node-cron');
 const app = express();
 app.use(cors());
@@ -30,17 +30,22 @@ mongoose.connect(MONGODB_URI, {
 //json
 app.use(express.json());
 
-//routes
-app.use('/api', jobsRoutes);
-
 // Init middleware
-executeInitialJobs();
+(async () => {
+    try {
+        console.log("Démarrage des tâches initiales...");
+        await jobsWork.initJobsWork();
+        console.log("Tâches initiales terminées avec succès !");
+    } catch (error) {
+        console.error("Erreur lors de l'exécution des tâches initiales :", error.message);
+    }
+})();
 
 // scheduling the cron task to run it every 0600L
 cron.schedule('0 */6 * * *', async () => {
     console.log("⏳ [CRON] Mise à jour automatique des offres d'emploi...");
     try {
-        await executeInitialJobs();
+        await jobsWork.initJobsWork();
         console.log("[CRON] Mise à jour terminée !");
     } catch (error) {
         console.error("[CRON] Erreur lors de la mise à jour :", error.message);
