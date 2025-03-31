@@ -35,7 +35,11 @@ app.use(express.json());
     try {
         console.log("Démarrage des tâches initiales...");
         await jobsWork.initJobsWork();
-        console.log("Tâches initiales terminées avec succès !");
+        if (result.success) {
+            console.log("Tâches initiales terminées avec succès !");
+        } else {
+            console.error("Tâches initiales échouées :", result.error);
+        }
     } catch (error) {
         console.error("Erreur lors de l'exécution des tâches initiales :", error.message);
     }
@@ -43,7 +47,7 @@ app.use(express.json());
 
 // scheduling the cron task to run it every 0600L
 cron.schedule('0 */6 * * *', async () => {
-    console.log("⏳ [CRON] Mise à jour automatique des offres d'emploi...");
+    console.log("[CRON] Mise à jour automatique des offres d'emploi...");
     try {
         await jobsWork.initJobsWork();
         console.log("[CRON] Mise à jour terminée !");
