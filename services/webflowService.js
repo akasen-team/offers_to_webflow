@@ -56,7 +56,7 @@ async function getWebflowValidDomain() {
 
         // Vérifier si Webflow retourne des domaines valides
         if (!response.data.customDomains || response.data.customDomains.length === 0) {
-            console.log("⚠️ Aucun domaine personnalisé trouvé, utilisation du staging Webflow.io...");
+            console.log("Aucun domaine personnalisé trouvé, utilisation du staging Webflow.io...");
             return `${process.env.WEBFLOW_SITE_SLUG}.webflow.io`;
         }
 
@@ -102,7 +102,7 @@ async function publishWebflowCollection() {
             }
         );
 
-        console.log(" Offres publiées avec succès :", response.data);
+        console.log("Offres publiées avec succès :", response.data);
     } catch (error) {
         console.error("Erreur lors de la publication des offres Webflow :", error.response?.data || error.message);
     }
@@ -143,25 +143,25 @@ async function getExistingWebflowJobs() {
 
 // Fonction pour envoyer toutes les offres existantes dans Webflow
 exports.sendJobsToWebflow = async function () {
-    console.log("⚡ Envoi des offres d'emploi vers Webflow...");
+    console.log("Envoi des offres d'emploi vers Webflow...");
 
     try {
-        // 🔎 Récupération de l'ID de la collection si non défini
+        // Récupération de l'ID de la collection si non défini
         let collectionId = process.env.WEBFLOW_COLLECTION_ID;
         if (!collectionId) {
-            console.log("🔍 ID de la collection Webflow non trouvé, récupération...");
+            console.log("ID de la collection Webflow non trouvé, récupération...");
             collectionId = await getWebflowCollectionId();
             process.env.WEBFLOW_COLLECTION_ID = collectionId; // Stocker pour éviter de le récupérer à chaque appel
         }
 
-        console.log(` Collection Webflow ID : ${collectionId}`);
+        console.log(`Collection Webflow ID : ${collectionId}`);
 
         // Récupération des offres existantes pour éviter les doublons
         const existingWebflowJobs = await getExistingWebflowJobs();
 
         // Récupération des offres MongoDB
         const jobs = await Job.find({});
-        console.log(` ${jobs.length} offres récupérées depuis MongoDB`);
+        console.log(`${jobs.length} offres récupérées depuis MongoDB`);
 
         for (const job of jobs) {
             // Vérifier si l'offre existe déjà sur Webflow
@@ -213,7 +213,7 @@ exports.sendJobsToWebflow = async function () {
                     }
                 );
 
-                console.log(` Offre envoyée avec succès : ${job.titre}`);
+                console.log(`Offre envoyée avec succès : ${job.titre}`);
 
             } catch (err) {
                 console.error(`Erreur lors de l'ajout de '${job.titre}' :`, err.response?.data || err.message);
@@ -226,6 +226,6 @@ exports.sendJobsToWebflow = async function () {
         await publishWebflowCollection();
 
     } catch (error) {
-        console.error(" Erreur lors de l'envoi des offres à Webflow :", error.message);
+        console.error("Erreur lors de l'envoi des offres à Webflow :", error.message);
     }
 };
