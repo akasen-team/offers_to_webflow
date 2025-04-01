@@ -1,5 +1,6 @@
 const jobController = require('../controllers/jobController');
 const apiService = require('./apiService');
+const dbService = require('./dbService');
 const webflowService = require('./webflowService');
 
 // j'initialise le travail des offres
@@ -8,14 +9,20 @@ const webflowService = require('./webflowService');
 async function initJobsWork() {
     try {
         // Quand fetchData a fini de s'exécuter, cela signifie que les données sont enregistrées
-        console.log("Tentative de récupération des offres d'emploi depuis jobpostingpro...");
+        console.log("Début des tâches avec jobpostingpro");
         const jobs = await apiService.fetchData();
-        console.log("Données enregistrées en base");
+        console.log("Fin des tâches avec jobpostingpro");
+
+        console.log("Début des tâches dans mongoDB");
+        //await dbService.cloneJobs(jobs); // developpement seulement
+        await dbService.deleteJobs(jobs);
+        await dbService.writeJobs(jobs);
+        console.log("Fin des tâches dans mongoDB");
         
         //Quand les données sont enregistrées, je les envoie à Webflow
-        console.log("Tentative d'envoi des offres d'emploi vers Webflow...");
-        await webflowService.sendJobsToWebflow();
-        console.log("Offres envoyées à Webflow avec succès");
+        //console.log("Tentative d'envoi des offres d'emploi vers Webflow...");
+        //await webflowService.sendJobsToWebflow();
+        //console.log("Offres envoyées à Webflow avec succès");
 
         return { success: true };
     
