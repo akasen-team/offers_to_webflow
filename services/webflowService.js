@@ -73,7 +73,7 @@ async function getWebflowValidDomain() {
 
 // Fonction pour publier correctement les offres Webflow
 async function publishWebflowCollection() {
-    console.log("Tentative de publication des offres Webflow...");
+    console.log("Tentative de publication de la collection mise à jour...");
 
     try {
         // Récupération d'un domaine valide
@@ -102,9 +102,9 @@ async function publishWebflowCollection() {
             }
         );
 
-        console.log("Offres publiées avec succès :", response.data);
+        console.log("Collection publiée avec succès :", response.data);
     } catch (error) {
-        console.error("Erreur lors de la publication des offres Webflow :", error.response?.data || error.message);
+        console.error("Erreur lors de la publication de la collection dans Webflow :", error.response?.data || error.message);
     }
 }
 
@@ -141,22 +141,59 @@ async function getExistingWebflowJobs() {
     }
 }
 
-// Fonction pour envoyer toutes les offres existantes dans Webflow
-exports.sendJobsToWebflow = async function () {
-    console.log("Envoi des offres d'emploi vers Webflow...");
+// Fonction pour supprimer les offres obsolètes de Webflow
+async function deleteObsoleteJobs() {
+    console.log("Suppression des offres obsolètes dans Webflow...");
 
     try {
-        // Récupération de l'ID de la collection si non défini
-        let collectionId = process.env.WEBFLOW_COLLECTION_ID;
-        if (!collectionId) {
-            console.log("ID de la collection Webflow non trouvé, récupération...");
-            collectionId = await getWebflowCollectionId();
-            process.env.WEBFLOW_COLLECTION_ID = collectionId; // Stocker pour éviter de le récupérer à chaque appel
+        // Récupération des offres existantes dans Webflow
+        const existingWebflowJobs = await getExistingWebflowJobs();
+
+        // Récupération des offres existantes dans MongoDB
+        // Penser à créer un Set afin de pouvoir utiliser .has method
+        const jobs = await Job.find({});
+        const mongoJobsId = new Set(jobs.map(job => job.offre_id));
+
+        // Identifier les offres obsolètes (présentes dans Webflow mais pas dans MongoDB)
+        const obsoleteJobsId = [...existingWebflowJobs].filter(id => !mongoJobsId.has(id));
+
+        // Si pas d'offres obsolètes, dans ce cas là on sort et on passe à la suite (C'est à dire l'écriture des nouvelles offres)
+        if (obsoleteJobsId.length === 0) {
+            console.log("Aucune offre obsolète à supprimer dans Webflow.");
+            return;
+        }
+        //console.log(`${obsoleteJobsId.length} offres obsolètes trouvées dans Webflow :`, obsoleteJobsId);
+
+        // Supprimer les offres obsolètes de Webflow
+        for (const jobId of obsoleteJobsId) {
+            try {
+                await axios.delete(
+                    `https://api.webflow.com/v2/collections/${COLLECTION_ID}/items/${jobId}`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${WEBFLOW_API_TOKEN}`,
+                            'accept-version': '2.0'
+                        }
+
+                );
+                console.log(`Offre supprimée de Webflow : ${jobId}`);
+            } catch (error) {
+                console.error(`Erreur lors de la suppression de l'offre ${jobId} dans Webflow :`, error.response?.data || error.message);
+            }
         }
 
-        console.log(`Collection Webflow ID : ${collectionId}`);
+        console.log("Suppression des offres obsolètes terminée.");
+    } catch (error) {
+        console.error("Erreur lors de la suppression des offres obsolètes dans Webflow :", error.message);
+    }
+}
 
-        // Récupération des offres existantes pour éviter les doublons
+// Fonction pour publier les nouvelles offres dans Webflow
+async function publishJobsToWebflow(collectionId) {
+    console.log("Publication des nouvelles offres dans Webflow...");
+
+    try {
+        // Récupération des offres existantes dans Webflow
         const existingWebflowJobs = await getExistingWebflowJobs();
 
         // Récupération des offres MongoDB
@@ -188,7 +225,6 @@ exports.sendJobsToWebflow = async function () {
                                 "sector": job.metier || "",
                                 "contracttype": job.contrat_lib || "",
                                 "salary": `${job.sal_min || ''} - ${job.sal_max || ''}`,
-                                //TODO : changer desc_salaire en desc_avantage
                                 "avantages": job.desc_salaire || "",
                                 "timeperweek": job.temps_travail || "",
                                 "schedules": job.remote_type || "",
@@ -197,7 +233,6 @@ exports.sendJobsToWebflow = async function () {
                         }
                     ]
                 };
-                console.log(`Vérification avantage [Webflow]: ${job.titre} -> ${job.avantages}`);
 
                 console.log(`Envoi de l'offre '${job.titre}' vers Webflow...`);
 
@@ -214,17 +249,40 @@ exports.sendJobsToWebflow = async function () {
                 );
 
                 console.log(`Offre envoyée avec succès : ${job.titre}`);
-
             } catch (err) {
                 console.error(`Erreur lors de l'ajout de '${job.titre}' :`, err.response?.data || err.message);
             }
         }
 
-        console.log("Toutes les offres ont été traitées (sans doublon).");
+        console.log("Publication des nouvelles offres terminée.");
+    } catch (error) {
+        console.error("Erreur lors de la publication des offres dans Webflow :", error.message);
+    }
+}
+
+exports.syncJobsToWebflow = async function () {
+    console.log("Envoi des offres d'emploi vers Webflow...");
+
+    try {
+        // Récupération de l'ID de la collection si non défini
+        let collectionId = process.env.WEBFLOW_COLLECTION_ID;
+        if (!collectionId) {
+            console.log("ID de la collection Webflow non trouvé, récupération...");
+            collectionId = await getWebflowCollectionId();
+            process.env.WEBFLOW_COLLECTION_ID = collectionId;
+        }
+        console.log(`Collection Webflow ID : ${collectionId}`);
+
+        // Suppression des offres obsolètes
+        await deleteObsoleteJobs();
+
+        // Publication des nouvelles offres
+        await publishJobsToWebflow(collectionId);
 
         // Publier la collection après ajout des offres
         await publishWebflowCollection();
 
+        console.log("Toutes les offres ont été traitées et publiées avec succès.");
     } catch (error) {
         console.error("Erreur lors de l'envoi des offres à Webflow :", error.message);
     }
