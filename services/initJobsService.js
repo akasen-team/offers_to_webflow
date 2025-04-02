@@ -20,9 +20,9 @@ async function initJobsWork() {
         console.log("Fin des tâches dans mongoDB");
         
         //Quand les données sont enregistrées, je les envoie à Webflow
-        //console.log("Tentative d'envoi des offres d'emploi vers Webflow...");
-        //await webflowService.sendJobsToWebflow();
-        //console.log("Offres envoyées à Webflow avec succès");
+        console.log("Tentative d'envoi des offres d'emploi vers Webflow...");
+        await webflowService.syncJobsToWebflow();
+        console.log("Offres envoyées à Webflow avec succès");
 
         return { success: true };
     
