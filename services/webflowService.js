@@ -263,7 +263,7 @@ async function publishJobsToWebflow(collectionId, existingWebflowJobs) {
                     console.log("Détails de la réponse :", response.data);
                 } else {
                     results.push({ job: job.titre, status: 'error' });
-                    console.error(`Erreur lors de la publication de '${job.titre}' :`, response.status, response.statusText);
+                    console.error(` publication de l'${job.titre}' :`, response.status, response.statusText);
                 }
                 console.log("Publication des offres terminée")
             } catch (err) {
