@@ -10,9 +10,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-//const jobsRoutes = require('./routes/jobsRoutes');
-const jobController = require('./controllers/jobController');
-const webflowService = require('./services/webflowService');
+jobsRoutes = require('./routes/jobsRoutes');
 const jobsWork = require('./services/initJobsService');
 const cron = require('node-cron');
 const app = express();
@@ -29,6 +27,9 @@ mongoose.connect(MONGODB_URI, {
 
 //json
 app.use(express.json());
+
+// Routes
+app.use('/api', jobsRoutes);
 
 // Init middleware
 (async () => {
