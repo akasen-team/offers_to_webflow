@@ -1,3 +1,4 @@
+const { WebflowClient } = require("webflow-api");
 const axios = require('axios');
 require('dotenv').config();
 const Job = require('../models/jobOffer');
@@ -6,6 +7,13 @@ const WEBFLOW_API_URL = 'https://api.webflow.com/v2/collections';
 const WEBFLOW_API_TOKEN = process.env.WEBFLOW_API_TOKEN;
 const SITE_ID = process.env.WEBFLOW_SITE_ID; 
 const COLLECTION_ID = process.env.COLLECTION_ID;
+
+// Get site domains
+async function getWebflowSiteDomains() {
+    const site = await webflowClient.sites.get(SITE_ID);
+    console.log(site.domains);
+    return site.domains;
+}
 
 // Get webflow's collection ID
 async function getWebflowCollectionId() {
@@ -68,6 +76,31 @@ async function getWebflowValidDomain() {
     } catch (error) {
         console.error("Erreur lors de la récupération du domaine Webflow :", error.response?.data || error.message);
         throw error;
+    }
+}
+// Fonction pour publier le site Webflow
+async function publishWebflowSite() {
+    console.log("Tentative de publication du site Webflow...");
+    const publishUrl = `https://api.webflow.com/sites/${SITE_ID}/publish`;
+    const domain = "ikiway.com";
+    
+    try {
+        const response = await axios.post(
+            `https://api.webflow.com/sites/${SITE_ID}/publish`,
+            {
+              domains: [domain]
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${WEBFLOW_API_TOKEN}`,
+                'Accept-Version': '1.0.0',
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+        console.log("Site Webflow publié avec succès !");
+    } catch (error) {
+        console.error("Erreur lors de la publication du site Webflow :", error.response?.data || error.message);
     }
 }
 
@@ -278,6 +311,9 @@ async function publishJobsToWebflow(collectionId, existingWebflowJobs) {
 
 exports.syncJobsToWebflow = async function () {
     try {
+        //const siteDomains = await getWebflowSiteDomains();
+        //console.log("Domaines du site Webflow :", siteDomains);
+
         // Récupération de l'ID de la collection si non défini
         let collectionId = process.env.WEBFLOW_COLLECTION_ID;
         if (!collectionId) {
@@ -302,7 +338,10 @@ exports.syncJobsToWebflow = async function () {
         await publishJobsToWebflow(collectionId, existingWebflowJobsId);
 
         // Publier la collection après ajout des offres
-        await publishWebflowCollection();
+        //await publishWebflowCollection();
+
+        // Publier le site Webflow
+        await publishWebflowSite();
 
         console.log("Toutes les offres ont été traitées");
     } catch (error) {
