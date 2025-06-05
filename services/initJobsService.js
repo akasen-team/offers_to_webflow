@@ -17,6 +17,7 @@ async function initJobsWork() {
         //await dbService.cloneJobs(jobs); // developpement seulement
         await dbService.deleteJobs(jobs);
         await dbService.writeJobs(jobs);
+        //await dbService.updateJobs(jobs);
         console.log("Fin des tâches dans mongoDB");
         
         //Quand les données sont enregistrées, je les envoie à Webflow

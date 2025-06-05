@@ -8,8 +8,8 @@
 
 const Job = require('../models/jobOffer'); 
 const mongoose = require('mongoose');
+const { needsUpdate, getModifiedFields } = require('./jobSyncService');
 
-// Fonction d'écriture des offres
 async function writeJobs(jobDataArray) {
     try {
         for (const jobData of jobDataArray) {
@@ -30,7 +30,20 @@ async function writeJobs(jobDataArray) {
     }
 }
 
-// Fonction de suppression des offres obsolètes
+async function updateJobs(jobDataArray) {
+    for (const jobData of jobDataArray) {
+        const existingJob = await Job.findOne({ offre_id: jobData.offre_id });
+
+        if (existingJob && needsUpdate(existingJob, jobData)) {
+            const changes = getModifiedFields(existingJob, jobData);
+            console.log(`Mise à jour pour ${jobData.offre_id} :`, changes);
+
+            await Job.updateOne({ offre_id: jobData.offre_id }, { $set: jobData });
+        }
+    }
+}
+
+
 async function deleteJobs(jobDataArray) {
     // Récupérer toutes en base de données
     const existingJobsId = await Job.find({}, 'offre_id').then(jobs => jobs.map(job => job.offre_id));
@@ -72,5 +85,6 @@ async function cloneJobs(jobDataArray) {
 module.exports = {
     writeJobs,
     cloneJobs,
-    deleteJobs
+    deleteJobs,
+    updateJobs
 };
